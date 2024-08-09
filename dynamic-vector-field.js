@@ -1,12 +1,12 @@
 let vectors = [];
-let influenceRadius = 400;
+let influenceRadius = 60;
 let noiseScale = 0.002;
 let noiseSpeed = 0.002;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    for (let x = 20; x < width; x += 50) {
-        for (let y = 20; y < height; y += 50) {
+    for (let x = 20; x < width; x += 30) {
+        for (let y = 20; y < height; y += 30) {
             vectors.push(new _Vector(x, y));
         }
     }
