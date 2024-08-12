@@ -8,11 +8,19 @@ function setup() {
     let CanvasWidth = windowWidth;
     let CanvasHeight = windowHeight;
     createCanvas(CanvasWidth, CanvasHeight);
-    createSliders();
     pg = createGraphics(CanvasWidth, CanvasHeight);
     frameRate(30);
+
+    // Define fixed values for variables || ART DIRECTION IN HERE
+    tX = 60; // Number of tiles in X direction
+    tY = 60; // Number of tiles in Y direction
+    sp = 0.05; // Speed
+    dispX = 0.05; // Displacement X
+    dispY = 0.1; // Displacement Y
+    offst = 20; // Offset
 }
 
+// Draw text and distortion on Canvas
 function draw() {
   background('#000000');
 
@@ -27,8 +35,8 @@ function draw() {
   pg.pop();
 
 
-  let tilesX = tX.value();
-  let tilesY = tY.value();
+  let tilesX = tX;
+  let tilesY = tY;
 
   let tileW = int(width/tilesX);
   let tileH = int(height/tilesY);
@@ -36,14 +44,14 @@ function draw() {
   for (let y = 0; y < tilesY; y++) {
     for (let x = 0; x < tilesX; x++) {
       // WARP
-      let waveX = int(sin(frameCount * sp.value() + ( x * y ) * dispX.value()) * offst.value());
-      let waveY = int(sin(frameCount * sp.value() + ( x * y ) * dispY.value()) * offst.value());
+      let waveX = int(sin(frameCount * sp + ( x * y ) * dispX) * offst);
+      let waveY = int(sin(frameCount * sp + ( x * y ) * dispY) * offst);
 
-      if (dispX.value() === 0){
+      if (dispX === 0){
           waveX = 0;
       }
 
-      if (dispY.value() === 0){
+      if (dispY === 0){
           waveY = 0;
       }
       
@@ -64,30 +72,3 @@ function draw() {
     }
   }
 }
-
-/* NOT NEEDED IN FULLSCREEN
-function createSliders(){
-  tX = createSlider(1, 80, 16, 1);
-  tX.position(20, height + 40);
-  createP('Tiles X').position(20, height);
-
-  tY = createSlider(1, 80, 16, 1);
-  tY.position(20, height + 100);
-  createP('Tiles Y').position(20, height+60);
-
-  sp = createSlider(0, 1, 0.005, 0.01);
-  sp.position(20, height + 160);
-  createP('Speed').position(20, height+120);
-
-  dispX = createSlider(0, 0.1, 0.05, 0.001);
-  dispX.position(180, height + 40);
-  createP('Displacement X').position(180, height);
-
-  dispY = createSlider(0, 0.2, 0, 0.01);
-  dispY.position(180, height + 100);
-  createP('Displacement Y').position(180, height+60);
-
-  offst = createSlider(0, 300, 100, 1);
-  offst.position(180, height + 160);
-  createP('Offset').position(180, height+120);
-} */
