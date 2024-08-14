@@ -4,7 +4,7 @@ let tX, tY;
 
 
 let maxDistortion = 50;
-let distortionRadius = 200;
+let distortionRadius = 400;
 let falloffPower = 2;
 let noiseScale = 0.05;
 let noiseStrength = 200;
@@ -36,8 +36,8 @@ function drawAllTiles() {
 
     let tilesX = tX;
     let tilesY = tY;
-    let tileW = floor(width / tilesX);
-    let tileH = floor(height / tilesY);
+    let tileW = ceil(width / tilesX);
+    let tileH = ceil(height / tilesY);
 
     noSmooth(); // no smoothing while rendering
 
