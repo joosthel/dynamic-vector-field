@@ -1,9 +1,11 @@
 let font;
 let pg;
-
 let tX, tY;
-let maxDistortion = 200; // Maximum distortion amount
-let distortionRadius = 500; // Radius of distortion effect
+let maxDistortion = 50; // Maximum distortion amount
+let distortionRadius = 400; // Radius of distortion effect
+let falloffPower = 5; // Increased from 3 to 5 for faster falloff
+let noiseScale = 0.1; // Scale of the noise
+let noiseStrength = 250; // Strength of the noise effect
 
 function setup() {
     let CanvasWidth = windowWidth;
@@ -11,17 +13,15 @@ function setup() {
     createCanvas(CanvasWidth, CanvasHeight);
     pg = createGraphics(CanvasWidth, CanvasHeight);
     frameRate(60);
-
-    tX = 60; // Number of tiles in X direction
-    tY = 60; // Number of tiles in Y direction
+    tX = 120; // Number of tiles in X direction
+    tY = 120; // Number of tiles in Y direction
 }
 
 function draw() {
     background('#000000');
-
     // PGraphics
-    pg.background(0);
-    pg.fill(255);
+    pg.background(255);
+    pg.fill(0);
     pg.textSize(400);
     pg.push();
     pg.translate(width/2, height/2);
@@ -31,7 +31,6 @@ function draw() {
 
     let tilesX = tX;
     let tilesY = tY;
-
     let tileW = int(width/tilesX);
     let tileH = int(height/tilesY);
 
@@ -41,10 +40,10 @@ function draw() {
             let mousePos = createVector(mouseX, mouseY);
             let distToMouse = p5.Vector.dist(tileCenter, mousePos);
             
-            // Create a smooth falloff
+            // Create a smoother, faster falloff
             let distortionFactor = map(distToMouse, 0, distortionRadius, 1, 0);
             distortionFactor = constrain(distortionFactor, 0, 1);
-            distortionFactor = pow(distortionFactor, 3); // Non-linear falloff
+            distortionFactor = pow(distortionFactor, falloffPower); // Steeper non-linear falloff
             
             // Calculate angle between mouse and tile for directional distortion
             let angle = atan2(tileCenter.y - mouseY, tileCenter.x - mouseX);
@@ -52,6 +51,15 @@ function draw() {
             // Calculate distortion based on mouse position
             let distortionX = cos(angle) * maxDistortion * distortionFactor;
             let distortionY = sin(angle) * maxDistortion * distortionFactor;
+
+            // Add localized noise effect
+            let noiseVal = noise(x * noiseScale, y * noiseScale, frameCount * 0.02);
+            let noiseOffsetX = map(noiseVal, 0, 1, -noiseStrength, noiseStrength) * distortionFactor;
+            let noiseOffsetY = map(noise(x * noiseScale, y * noiseScale, 1000 + frameCount * 0.02), 0, 1, -noiseStrength, noiseStrength) * distortionFactor;
+
+            // Combine distortion and noise
+            distortionX += noiseOffsetX;
+            distortionY += noiseOffsetY;
 
             // SOURCE
             let sx = x * tileW + distortionX;
