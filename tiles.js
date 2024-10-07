@@ -9,9 +9,8 @@ const RAND = (min, max) => Math.random() * (max - min) + min // .randomUniform
 let W, H, polygons, voronoi, positions, velocities, colors;
 
 function setup() {
-  ctx = canvas.getContext("2d");
-  [W, H] = [windowWidth, windowHeight];
-  createCanvas(W, H);
+    [W, H] = [windowWidth, windowHeight];
+    createCanvas(W, H);
   frameRate(60);
   strokeWeight(2)
   fill('#000')
@@ -58,10 +57,7 @@ function draw() {
     beginShape();
     rverts.map(v => vertex(v.x, v.y));
     endShape(CLOSE);
-    pop()
-    
-    // RENDER (site)
-    point(pos[0], pos[1]);
+    //pop()
     
   }
     
