@@ -3,6 +3,9 @@ const numPoints = 20;
 let connectionRadius;
 let minRadius = 150;
 let maxRadius = 700;
+let draggedPoint = null;
+let noiseScale = 0.008;
+let noiseStrength = 2;
 
 // Custom texts for points (unchanged)
 const customTexts = [
@@ -40,19 +43,25 @@ function draw() {
   
   // Update and display points
   for (let point of points) {
-    point.move();
+    if (point !== draggedPoint) {
+      point.move();
+    }
     point.display();
   }
   
-  // Check for connections
+  // Check for connections and draw them
   for (let i = 0; i < points.length; i++) {
     for (let j = i + 1; j < points.length; j++) {
       let d = dist(points[i].x, points[i].y, points[j].x, points[j].y);
       if (d < connectionRadius) {
         stroke(100, 100, 100, map(d, 0, connectionRadius, 255, 0));
         strokeWeight(1.5);
-        
         line(points[i].x, points[i].y, points[j].x, points[j].y);
+        points[i].connectedPoints.add(points[j]);
+        points[j].connectedPoints.add(points[i]);
+      } else {
+        points[i].connectedPoints.delete(points[j]);
+        points[j].connectedPoints.delete(points[i]);
       }
     }
   }
@@ -63,17 +72,24 @@ class Point {
     this.x = x;
     this.y = y;
     this.text = text;
-    this.speed = 1;
-    this.direction = p5.Vector.random2D();
+    this.noiseOffsetX = random(1000);
+    this.noiseOffsetY = random(1000);
+    this.connectedPoints = new Set();
   }
   
   move() {
-    this.x += this.direction.x * this.speed;
-    this.y += this.direction.y * this.speed;
+    let dx = map(noise(this.noiseOffsetX), 0, 1, -1, 1) * noiseStrength;
+    let dy = map(noise(this.noiseOffsetY), 0, 1, -1, 1) * noiseStrength;
     
-    // Bounce off edges
-    if (this.x < 0 || this.x > width) this.direction.x *= -1;
-    if (this.y < 0 || this.y > height) this.direction.y *= -1;
+    this.x += dx;
+    this.y += dy;
+    
+    // Wrap around edges
+    this.x = (this.x + width) % width;
+    this.y = (this.y + height) % height;
+    
+    this.noiseOffsetX += noiseScale;
+    this.noiseOffsetY += noiseScale;
   }
   
   display() {
@@ -82,6 +98,10 @@ class Point {
     ellipse(this.x, this.y, 12);
     fill(0);
     text(this.text, this.x, this.y + 17.5);
+  }
+  
+  isOver(px, py) {
+    return dist(px, py, this.x, this.y) < 6;
   }
 }
 
@@ -94,4 +114,31 @@ function calculateConnectionRadius() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   calculateConnectionRadius();
+}
+
+function mousePressed() {
+  for (let point of points) {
+    if (point.isOver(mouseX, mouseY)) {
+      draggedPoint = point;
+      break;
+    }
+  }
+}
+
+function mouseDragged() {
+  if (draggedPoint) {
+    let dx = mouseX - draggedPoint.x;
+    let dy = mouseY - draggedPoint.y;
+    draggedPoint.x = mouseX;
+    draggedPoint.y = mouseY;
+    
+    // Move connected points
+    for (let connectedPoint of draggedPoint.connectedPoints) {
+      connectedPoint.x += dx * 0.3; 
+    }
+  }
+}
+
+function mouseReleased() {
+  draggedPoint = null;
 }
